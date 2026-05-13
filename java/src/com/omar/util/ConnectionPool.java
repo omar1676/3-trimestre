@@ -49,6 +49,9 @@ public class ConnectionPool {
         } else {
             conexion = libres.remove(libres.size() - 1);
         }
+        if (conexion.isClosed()) {
+            conexion = crearConexion();
+        }
         return conexion;
     }
 
