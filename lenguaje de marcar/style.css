@@ -1,0 +1,126 @@
+:root {
+  --fondo: #eceff2;
+  --panel: #ffffff;
+  --texto: #1f2733;
+  --suave: #6b7682;
+  --borde: #d3d9df;
+  --borde-fuerte: #b9c1ca;
+  --corp: #1b3a5c;
+  --corp-claro: #eef2f6;
+  --corp-medio: #2d5680;
+  --acento: #c69a3a;
+  --rojo: #a33529;
+  --verde-ok: #2f6b46;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Segoe UI", Arial, sans-serif;
+  background-color: var(--fondo);
+  color: var(--texto);
+  line-height: 1.4;
+  font-size: 14px;
+}
+
+.topbar {
+  background-color: var(--corp);
+  color: #fff;
+  padding: 0 24px;
+  height: 54px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 3px solid var(--acento);
+}
+
+.topbar__marca {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+}
+
+.topbar__logo-img {
+  height: 38px;
+  width: auto;
+  display: block;
+}
+
+.topbar__sesion {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.topbar__usuario {
+  font-size: 13px;
+  color: #d4dde6;
+}
+
+.topbar__viewport {
+  font-size: 11px;
+  color: #cfe0a8;
+  border: 1px solid #3a5d80;
+  padding: 4px 10px;
+  border-radius: 3px;
+}
+
+.nav {
+  background-color: var(--corp-medio);
+  display: flex;
+  justify-content: center;
+  padding: 0 24px;
+}
+
+.nav__item {
+  border: none;
+  background-color: transparent;
+  color: #cdd9e4;
+  padding: 12px 20px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  border-bottom: 3px solid transparent;
+  transition: background-color 0.12s, border-color 0.12s;
+}
+
+.nav__item:hover {
+  background-color: rgba(255,255,255,0.08);
+  color: #fff;
+}
+
+.nav__item--active {
+  background-color: var(--fondo);
+  color: var(--corp);
+  border-bottom: 3px solid var(--acento);
+}
+
+.migas {
+  padding: 12px 24px;
+  font-size: 12px;
+  color: var(--suave);
+  display: flex;
+  gap: 8px;
+}
+
+.migas__raiz {
+  color: var(--corp-medio);
+  font-weight: 600;
+}
+
+.migas__actual {
+  color: var(--texto);
+  font-weight: 600;
+}
+
+.main {
+  padding: 0 24px 28px;
+  max-width: 1280px;
+  margin: 0 auto;
+  width: 100%;
+}
+
