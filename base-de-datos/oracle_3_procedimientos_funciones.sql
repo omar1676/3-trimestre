@@ -307,3 +307,17 @@ BEGIN
 END;
 /
 
+-- ============================================================
+-- VISTAS
+-- ============================================================
+
+CREATE OR REPLACE VIEW v_matriculas AS
+SELECT v.id, c.nombre AS alumno, u.nombre AS comercial, v.fecha, v.estado, v.total
+FROM ventas v
+JOIN clientes c ON v.cliente_id = c.id
+JOIN usuarios u ON v.usuario_id = u.id;
+
+CREATE OR REPLACE VIEW v_facturacion AS
+SELECT estado, COUNT(*) AS num_matriculas, SUM(total) AS importe
+FROM ventas
+GROUP BY estado;
