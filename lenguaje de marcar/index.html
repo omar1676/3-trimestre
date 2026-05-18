@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CRM Instituto Xtart</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="topbar__marca">
+      <img class="topbar__logo-img" src="imagenes/logo.svg" alt="Grupo Xtart">
+    </div>
+    <div class="topbar__sesion">
+      <span class="topbar__usuario">Administrador</span>
+      <span class="topbar__viewport" id="viewport-info">--</span>
+    </div>
+  </header>
+
+  <nav class="nav">
+    <button class="nav__item nav__item--active" data-entidad="clientes">Alumnos</button>
+    <button class="nav__item" data-entidad="usuarios">Personal</button>
+    <button class="nav__item" data-entidad="productos">Cursos</button>
+    <button class="nav__item" data-entidad="ventas">Matriculas</button>
+    <button class="nav__item" data-entidad="detalles">Detalle matriculas</button>
+  </nav>
+
+  <div class="migas">
+    <span class="migas__raiz">CRM</span>
+    <span class="migas__sep">/</span>
+    <span class="migas__actual" id="migas-actual">Alumnos</span>
+  </div>
+
+  <main class="main">
+
+    <div class="resumen" id="resumen"></div>
+
+    <section class="panel">
+      <div class="panel__cabecera">
+        <h2 class="panel__titulo" id="panel-titulo">Listado de Alumnos</h2>
+        <div class="panel__acciones">
+          <input type="text" class="panel__search" id="buscador" placeholder="Filtrar registros...">
+          <button class="panel__btn" id="btn-nuevo">Nuevo registro</button>
+        </div>
+      </div>
+      <div class="tabla-zona" id="tabla-zona"></div>
+    </section>
+
+  </main>
+
+  <footer class="pie">
+    <span>CRM Instituto Xtart &middot; Proyecto Integrado 1&ordm; DAM</span>
+    <span>Grupo Xtart &middot; 2026</span>
+  </footer>
+
+  <div class="modal" id="modal">
+    <div class="modal__caja">
+      <div class="modal__cabecera">
+        <h2 class="modal__titulo" id="modal-titulo">Nuevo</h2>
+        <button class="modal__cerrar" id="modal-cerrar">&times;</button>
+      </div>
+      <div class="modal__cuerpo" id="modal-cuerpo"></div>
+      <div class="modal__pie">
+        <button class="modal__btn modal__btn--cancelar" id="btn-cancelar">Cancelar</button>
+        <button class="modal__btn modal__btn--guardar" id="btn-guardar">Guardar</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="aviso" id="aviso"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
