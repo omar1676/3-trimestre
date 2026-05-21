@@ -195,3 +195,132 @@ class Almacen {
   }
 }
 
+const CONFIG = {
+  clientes: {
+    titulo: 'Alumnos',
+    columnas: ['id', 'nombre', 'email', 'telefono', 'direccion'],
+    campos: [
+      { clave: 'nombre', etiqueta: 'Nombre', tipo: 'text' },
+      { clave: 'email', etiqueta: 'Email', tipo: 'email' },
+      { clave: 'telefono', etiqueta: 'Telefono', tipo: 'text' },
+      { clave: 'direccion', etiqueta: 'Direccion', tipo: 'text' }
+    ],
+    crear: (id, v) => new Cliente(id, v.nombre, v.email, v.telefono, v.direccion)
+  },
+  usuarios: {
+    titulo: 'Personal',
+    columnas: ['id', 'nombre', 'email', 'rol'],
+    campos: [
+      { clave: 'nombre', etiqueta: 'Nombre', tipo: 'text' },
+      { clave: 'email', etiqueta: 'Email', tipo: 'email' },
+      { clave: 'rol', etiqueta: 'Rol', tipo: 'select', opciones: ['ADMIN', 'ORIENTADOR', 'SECRETARIA', 'COMERCIAL'] }
+    ],
+    crear: (id, v) => new Usuario(id, v.nombre, v.email, v.rol)
+  },
+  productos: {
+    titulo: 'Cursos',
+    columnas: ['id', 'nombre', 'categoria', 'precio'],
+    campos: [
+      { clave: 'nombre', etiqueta: 'Nombre', tipo: 'text' },
+      { clave: 'descripcion', etiqueta: 'Descripcion', tipo: 'text' },
+      { clave: 'precio', etiqueta: 'Precio', tipo: 'number' },
+      { clave: 'categoria', etiqueta: 'Categoria', tipo: 'select', opciones: ['GRADO_MEDIO', 'GRADO_SUPERIOR', 'ESPECIALIZACION', 'CURSO_CORTO', 'IDIOMAS'] }
+    ],
+    crear: (id, v) => new Producto(id, v.nombre, v.descripcion, Number(v.precio), v.categoria)
+  },
+  ventas: {
+    titulo: 'Matriculas',
+    columnas: ['id', 'clienteId', 'usuarioId', 'fecha', 'estado', 'total'],
+    campos: [
+      { clave: 'clienteId', etiqueta: 'Id alumno', tipo: 'number' },
+      { clave: 'usuarioId', etiqueta: 'Id personal', tipo: 'number' },
+      { clave: 'fecha', etiqueta: 'Fecha', tipo: 'date' },
+      { clave: 'estado', etiqueta: 'Estado', tipo: 'select', opciones: ['PENDIENTE', 'CONFIRMADA', 'PAGADA', 'CANCELADA'] },
+      { clave: 'total', etiqueta: 'Total', tipo: 'number' }
+    ],
+    crear: (id, v) => new Venta(id, Number(v.clienteId), Number(v.usuarioId), v.fecha, v.estado, Number(v.total))
+  },
+  detalles: {
+    titulo: 'Detalle matriculas',
+    columnas: ['id', 'ventaId', 'productoId', 'cantidad', 'precioUnitario'],
+    campos: [
+      { clave: 'ventaId', etiqueta: 'Id matricula', tipo: 'number' },
+      { clave: 'productoId', etiqueta: 'Id curso', tipo: 'number' },
+      { clave: 'cantidad', etiqueta: 'Cantidad', tipo: 'number' },
+      { clave: 'precioUnitario', etiqueta: 'Precio unitario', tipo: 'number' }
+    ],
+    crear: (id, v) => new DetalleVenta(id, Number(v.ventaId), Number(v.productoId), Number(v.cantidad), Number(v.precioUnitario))
+  }
+};
+
+const almacen = new Almacen();
+let entidadActiva = 'clientes';
+let editandoId = null;
+
+const tablaZona = document.getElementById('tabla-zona');
+const buscador = document.getElementById('buscador');
+const modal = document.getElementById('modal');
+const modalCuerpo = document.getElementById('modal-cuerpo');
+const modalTitulo = document.getElementById('modal-titulo');
+
+function pintarStats() {
+  const stats = [
+    { etiqueta: 'Alumnos', n: almacen.lista('clientes').length },
+    { etiqueta: 'Personal', n: almacen.lista('usuarios').length },
+    { etiqueta: 'Cursos', n: almacen.lista('productos').length },
+    { etiqueta: 'Matriculas', n: almacen.lista('ventas').length }
+  ];
+  let html = '';
+  stats.forEach(s => {
+    html += '<div class="kpi">';
+    html += '<span class="kpi__etiqueta">' + s.etiqueta + '</span>';
+    html += '<span class="kpi__numero">' + s.n + '</span>';
+    html += '<span class="kpi__pie"></span>';
+    html += '</div>';
+  });
+  document.getElementById('resumen').innerHTML = html;
+}
+
+function pintarTabla() {
+  pintarStats();
+  const config = CONFIG[entidadActiva];
+  const filtro = buscador.value.toLowerCase().trim();
+
+  const lista = almacen.lista(entidadActiva).filter(item => {
+    if (!filtro) {
+      return true;
+    }
+    const texto = Object.values(item).join(' ').toLowerCase();
+    return texto.includes(filtro);
+  });
+
+  if (lista.length === 0) {
+    tablaZona.innerHTML = '<p class="tabla__vacia">No hay registros</p>';
+    return;
+  }
+
+  let html = '<table class="tabla"><thead class="tabla__cabecera"><tr>';
+  config.columnas.forEach(col => {
+    html += '<th class="tabla__th">' + col + '</th>';
+  });
+  html += '<th class="tabla__th">Acciones</th></tr></thead><tbody>';
+
+  lista.forEach(item => {
+    html += '<tr class="tabla__fila">';
+    config.columnas.forEach(col => {
+      let valor = item[col];
+      if (col === 'categoria' || col === 'estado' || col === 'rol') {
+        valor = '<span class="pildora pildora--' + valor + '">' + valor + '</span>';
+      }
+      html += '<td class="tabla__td">' + valor + '</td>';
+    });
+    html += '<td class="tabla__td"><div class="tabla__acciones">';
+    html += '<button class="tabla__btn tabla__btn--editar" data-accion="editar" data-id="' + item.id + '">Editar</button>';
+    html += '<button class="tabla__btn tabla__btn--borrar" data-accion="borrar" data-id="' + item.id + '">Borrar</button>';
+    html += '</div></td></tr>';
+  });
+
+  html += '</tbody></table>';
+  tablaZona.innerHTML = html;
+}
+
