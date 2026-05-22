@@ -324,3 +324,167 @@ function pintarTabla() {
   tablaZona.innerHTML = html;
 }
 
+function abrirModal(id) {
+  const config = CONFIG[entidadActiva];
+  editandoId = id;
+
+  let objeto = null;
+  if (id !== null) {
+    objeto = almacen.buscarPorId(entidadActiva, id);
+    modalTitulo.textContent = 'Editar ' + config.titulo;
+  } else {
+    modalTitulo.textContent = 'Nuevo en ' + config.titulo;
+  }
+
+  let html = '';
+  config.campos.forEach(campo => {
+    const valor = objeto ? objeto[campo.clave] : '';
+    html += '<div class="modal__campo">';
+    html += '<label class="modal__label">' + campo.etiqueta + '</label>';
+
+    if (campo.tipo === 'select') {
+      html += '<select class="modal__input" id="campo-' + campo.clave + '">';
+      campo.opciones.forEach(op => {
+        const sel = (valor === op) ? ' selected' : '';
+        html += '<option value="' + op + '"' + sel + '>' + op + '</option>';
+      });
+      html += '</select>';
+    } else {
+      html += '<input class="modal__input" id="campo-' + campo.clave + '" type="' + campo.tipo + '" value="' + valor + '">';
+    }
+
+    html += '<span class="modal__error" id="error-' + campo.clave + '"></span>';
+    html += '</div>';
+  });
+
+  modalCuerpo.innerHTML = html;
+  modal.classList.add('modal--abierto');
+}
+
+function cerrarModal() {
+  modal.classList.remove('modal--abierto');
+  editandoId = null;
+}
+
+function guardar() {
+  const config = CONFIG[entidadActiva];
+  const valores = {};
+  let hayError = false;
+
+  config.campos.forEach(campo => {
+    const input = document.getElementById('campo-' + campo.clave);
+    const error = document.getElementById('error-' + campo.clave);
+    const valor = input.value.trim();
+    error.textContent = '';
+
+    if (valor === '') {
+      error.textContent = 'Este campo es obligatorio';
+      hayError = true;
+    }
+    valores[campo.clave] = valor;
+  });
+
+  if (hayError) {
+    return;
+  }
+
+  if (editandoId !== null) {
+    const objeto = config.crear(editandoId, valores);
+    almacen.actualizar(entidadActiva, objeto);
+    mostrarAviso('Registro actualizado');
+  } else {
+    const nuevoId = almacen.siguienteId(entidadActiva);
+    const objeto = config.crear(nuevoId, valores);
+    almacen.anadir(entidadActiva, objeto);
+    mostrarAviso('Registro creado');
+  }
+
+  cerrarModal();
+  pintarTabla();
+}
+
+function borrar(id) {
+  const ok = window.confirm('Seguro que quieres borrar el registro ' + id + '?');
+  if (ok) {
+    almacen.borrar(entidadActiva, id);
+    mostrarAviso('Registro borrado');
+    pintarTabla();
+  }
+}
+
+function lanzarAviso(texto, alTerminar) {
+  const aviso = document.getElementById('aviso');
+  aviso.textContent = texto;
+  aviso.classList.add('aviso--visible');
+
+  setTimeout(() => {
+    aviso.classList.remove('aviso--visible');
+    if (typeof alTerminar === 'function') {
+      alTerminar();
+    }
+  }, 2000);
+}
+
+function mostrarAviso(texto) {
+  lanzarAviso(texto, null);
+}
+
+function actualizarViewport() {
+  const ancho = window.innerWidth;
+  let tipo = 'Escritorio';
+  if (ancho < 640) {
+    tipo = 'Movil';
+  } else if (ancho < 992) {
+    tipo = 'Tablet';
+  }
+  document.getElementById('viewport-info').textContent = tipo;
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+
+  const botonesTab = document.querySelectorAll('.nav__item');
+  botonesTab.forEach(btn => {
+    btn.addEventListener('click', () => {
+      botonesTab.forEach(b => b.classList.remove('nav__item--active'));
+      btn.classList.add('nav__item--active');
+      entidadActiva = btn.dataset.entidad;
+      const titulo = CONFIG[entidadActiva].titulo;
+      document.getElementById('migas-actual').textContent = titulo;
+      document.getElementById('panel-titulo').textContent = 'Listado de ' + titulo;
+      buscador.value = '';
+      pintarTabla();
+    });
+  });
+
+  document.getElementById('btn-nuevo').addEventListener('click', () => abrirModal(null));
+
+  document.getElementById('modal-cerrar').addEventListener('click', cerrarModal);
+  document.getElementById('btn-cancelar').addEventListener('click', cerrarModal);
+  document.getElementById('btn-guardar').addEventListener('click', guardar);
+
+  buscador.addEventListener('input', pintarTabla);
+
+  tablaZona.addEventListener('click', (e) => {
+    const boton = e.target.closest('button');
+    if (!boton) {
+      return;
+    }
+    const id = Number(boton.dataset.id);
+    if (boton.dataset.accion === 'editar') {
+      abrirModal(id);
+    } else if (boton.dataset.accion === 'borrar') {
+      borrar(id);
+    }
+  });
+
+  window.addEventListener('click', (e) => {
+    if (e.target === modal) {
+      cerrarModal();
+    }
+  });
+
+  actualizarViewport();
+  window.addEventListener('resize', actualizarViewport);
+
+  pintarTabla();
+});
