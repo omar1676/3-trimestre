@@ -434,7 +434,7 @@ function actualizarViewport() {
   let tipo = 'Escritorio';
   if (ancho < 640) {
     tipo = 'Movil';
-  } else if (ancho < 992) {
+  } else if (ancho < 1024) {
     tipo = 'Tablet';
   }
   document.getElementById('viewport-info').textContent = tipo;
