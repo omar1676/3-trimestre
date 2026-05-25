@@ -12,6 +12,8 @@ DECLARE
     TYPE t_email  IS TABLE OF VARCHAR2(120);
     v_nombres t_nombre := t_nombre('Marta Ortiz','Hugo Salas','Nerea Gil','Ivan Mora','Sara Pena');
     v_emails  t_email  := t_email('marta.ortiz@estudiante.xtart.com','hugo.salas@estudiante.xtart.com','nerea.gil@estudiante.xtart.com','ivan.mora@estudiante.xtart.com','sara.pena@estudiante.xtart.com');
+    v_mod NUMBER;
+    v_del NUMBER;
 BEGIN
     -- CREAR 5 registros mediante un bucle
     FOR i IN 1 .. v_nombres.COUNT LOOP
@@ -21,16 +23,20 @@ BEGIN
     DBMS_OUTPUT.PUT_LINE('clientes creados: ' || v_nombres.COUNT);
 
     -- MODIFICAR 5 registros (los recien creados, por su email)
+    v_mod := 0;
     FOR i IN 1 .. v_emails.COUNT LOOP
         UPDATE clientes SET telefono = '611111' || i WHERE email = v_emails(i);
+        v_mod := v_mod + SQL%ROWCOUNT;
     END LOOP;
-    DBMS_OUTPUT.PUT_LINE('clientes modificados: ' || SQL%ROWCOUNT);
+    DBMS_OUTPUT.PUT_LINE('clientes modificados: ' || v_mod);
 
     -- ELIMINAR 5 registros (los de prueba, por su email)
+    v_del := 0;
     FOR i IN 1 .. v_emails.COUNT LOOP
         DELETE FROM clientes WHERE email = v_emails(i);
+        v_del := v_del + SQL%ROWCOUNT;
     END LOOP;
-    DBMS_OUTPUT.PUT_LINE('clientes eliminados: ' || SQL%ROWCOUNT);
+    DBMS_OUTPUT.PUT_LINE('clientes eliminados: ' || v_del);
 
     COMMIT;
 EXCEPTION
@@ -47,6 +53,8 @@ DECLARE
     TYPE t_txt IS TABLE OF VARCHAR2(120);
     v_nombres t_txt := t_txt('Test Uno','Test Dos','Test Tres','Test Cuatro','Test Cinco');
     v_emails  t_txt := t_txt('test1@xtart.com','test2@xtart.com','test3@xtart.com','test4@xtart.com','test5@xtart.com');
+    v_mod NUMBER;
+    v_del NUMBER;
 BEGIN
     FOR i IN 1 .. v_nombres.COUNT LOOP
         INSERT INTO usuarios (nombre, email, rol, password_hash)
@@ -54,15 +62,19 @@ BEGIN
     END LOOP;
     DBMS_OUTPUT.PUT_LINE('usuarios creados: ' || v_nombres.COUNT);
 
+    v_mod := 0;
     FOR i IN 1 .. v_emails.COUNT LOOP
         UPDATE usuarios SET rol = 'SECRETARIA' WHERE email = v_emails(i);
+        v_mod := v_mod + SQL%ROWCOUNT;
     END LOOP;
-    DBMS_OUTPUT.PUT_LINE('usuarios modificados: ' || SQL%ROWCOUNT);
+    DBMS_OUTPUT.PUT_LINE('usuarios modificados: ' || v_mod);
 
+    v_del := 0;
     FOR i IN 1 .. v_emails.COUNT LOOP
         DELETE FROM usuarios WHERE email = v_emails(i);
+        v_del := v_del + SQL%ROWCOUNT;
     END LOOP;
-    DBMS_OUTPUT.PUT_LINE('usuarios eliminados: ' || SQL%ROWCOUNT);
+    DBMS_OUTPUT.PUT_LINE('usuarios eliminados: ' || v_del);
 
     COMMIT;
 EXCEPTION

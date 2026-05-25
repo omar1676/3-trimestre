@@ -28,21 +28,30 @@ El proyecto sigue una arquitectura en capas:
 
 La aplicacion se conecta a una base de datos MySQL llamada crm_xtart que debe
 estar escuchando en el puerto 3307. Antes de ejecutar la aplicacion hay que
-crear la base de datos ejecutando los scripts de la carpeta base-de-datos.
+crear la base de datos ejecutando el script mysql_crm_xtart.sql de la carpeta
+base-de-datos.
 
-Los datos de conexion se leen del fichero config.properties, que debe estar en
-la raiz de la carpeta java. Ejemplo de contenido:
+Los datos de conexion se leen del fichero config.properties. Para que la
+aplicacion lo encuentre al ejecutar desde IntelliJ, el fichero debe estar en la
+raiz del proyecto (la carpeta que se abre en IntelliJ). Tambien se incluye una
+copia dentro de la carpeta java. Ejemplo de contenido:
 
 ```
 db.host=localhost
 db.puerto=3307
 db.nombre=crm_xtart
 db.usuario=root
-db.password=TU_PASSWORD
+db.password=
 db.pool.tamano=5
 ```
 
-Hay que sustituir TU_PASSWORD por la contrasena real de MySQL.
+Hay que poner la contrasena real de MySQL en db.password. Si se usa XAMPP, el
+usuario root suele tener la contrasena vacia, por lo que se deja la linea tal
+cual (db.password= sin nada despues del igual).
+
+Nota: si la aplicacion no encuentra el fichero, usa unos valores por defecto
+(puerto 3307 y contrasena vacia), que coinciden con una instalacion tipica de
+XAMPP, por lo que puede conectar igualmente.
 
 ## Anadir el driver JDBC en IntelliJ
 
@@ -51,11 +60,15 @@ Hay que sustituir TU_PASSWORD por la contrasena real de MySQL.
 3. Pulsar el boton mas, JARs or Directories, y seleccionar el jar de la carpeta lib.
 4. Aplicar y aceptar.
 
+Tambien se puede hacer clic derecho sobre el jar en la carpeta lib y elegir la
+opcion Add as Library.
+
 ## Como ejecutar
 
 1. Comprobar que MySQL esta arrancado en el puerto 3307 y que la base de datos
-   crm_xtart existe con sus tablas y datos.
-2. Comprobar que el fichero config.properties tiene la contrasena correcta.
+   crm_xtart existe con sus tablas y datos (ejecutar antes mysql_crm_xtart.sql).
+2. Comprobar que el fichero config.properties tiene la contrasena correcta (o
+   vacia si se usa XAMPP).
 3. Comprobar que el driver JDBC esta anadido como dependencia.
 4. Ejecutar la clase Main desde IntelliJ.
 
