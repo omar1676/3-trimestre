@@ -6,12 +6,11 @@ import com.omar.entities.Producto;
 import com.omar.entities.Usuario;
 import com.omar.entities.Venta;
 import com.omar.exceptions.EntidadNoEncontradaException;
-import com.omar.service.ClienteService;
-import com.omar.service.DetalleVentaService;
-import com.omar.service.MatriculaService;
-import com.omar.service.ProductoService;
-import com.omar.service.UsuarioService;
-import com.omar.service.VentaService;
+import com.omar.controller.ClienteController;
+import com.omar.controller.UsuarioController;
+import com.omar.controller.ProductoController;
+import com.omar.controller.VentaController;
+import com.omar.controller.DetalleController;
 import com.omar.util.ConnectionPool;
 import com.omar.util.ExportadorCSV;
 
@@ -27,21 +26,19 @@ public class Menu {
 
     private final Scanner entrada = new Scanner(System.in);
 
-    private ClienteService clienteService;
-    private UsuarioService usuarioService;
-    private ProductoService productoService;
-    private VentaService ventaService;
-    private DetalleVentaService detalleService;
-    private MatriculaService matriculaService;
+    private ClienteController clienteController;
+    private UsuarioController usuarioController;
+    private ProductoController productoController;
+    private VentaController ventaController;
+    private DetalleController detalleController;
 
     public void start() {
         try {
-            clienteService = new ClienteService();
-            usuarioService = new UsuarioService();
-            productoService = new ProductoService();
-            ventaService = new VentaService();
-            detalleService = new DetalleVentaService();
-            matriculaService = new MatriculaService();
+            clienteController = new ClienteController();
+            usuarioController = new UsuarioController();
+            productoController = new ProductoController();
+            ventaController = new VentaController();
+            detalleController = new DetalleController();
         } catch (SQLException e) {
             System.err.println("Error conectando con la base de datos: " + e.getMessage());
             System.err.println("Revisa config.properties (puerto 3307, usuario, password) y que MySQL este arrancado.");
@@ -154,7 +151,7 @@ public class Menu {
         System.out.print("Direccion: ");
         String direccion = entrada.nextLine();
         Cliente c = new Cliente(0, nombre, email, telefono, direccion);
-        if (clienteService.add(c)) {
+        if (clienteController.crear(c)) {
             System.out.println("Cliente guardado correctamente (id " + c.getId() + ")");
         } else {
             System.out.println("Esos datos no valen, revisa el nombre y el email");
@@ -162,7 +159,7 @@ public class Menu {
     }
 
     private void listClients() throws SQLException {
-        List<Cliente> lista = clienteService.list();
+        List<Cliente> lista = clienteController.listar();
         if (lista.isEmpty()) {
             System.out.println("Todavia no hay clientes");
             return;
@@ -177,7 +174,7 @@ public class Menu {
 
     private void findClient() throws SQLException {
         int id = readInt("Id: ");
-        Cliente c = clienteService.find(id);
+        Cliente c = clienteController.buscar(id);
         if (c == null) {
             System.out.println("No hay ningun cliente con ese id");
         } else {
@@ -187,7 +184,7 @@ public class Menu {
 
     private void updateClient() throws SQLException {
         int id = readInt("Id: ");
-        Cliente c = clienteService.find(id);
+        Cliente c = clienteController.buscar(id);
         if (c == null) {
             System.out.println("No hay ningun cliente con ese id");
             return;
@@ -200,7 +197,7 @@ public class Menu {
         c.setPhone(entrada.nextLine());
         System.out.print("Nueva direccion: ");
         c.setAddress(entrada.nextLine());
-        if (clienteService.modify(c)) {
+        if (clienteController.modificar(c)) {
             System.out.println("Cambios guardados");
         } else {
             System.out.println("No se ha podido guardar");
@@ -209,7 +206,7 @@ public class Menu {
 
     private void deleteClient() throws SQLException {
         int id = readInt("Id: ");
-        if (clienteService.remove(id)) {
+        if (clienteController.eliminar(id)) {
             System.out.println("Borrado correctamente");
         } else {
             System.out.println("No hay ningun cliente con ese id");
@@ -266,7 +263,7 @@ public class Menu {
         System.out.print("Password: ");
         String passwordHash = "hash_" + entrada.nextLine();
         Usuario u = new Usuario(0, nombre, email, rol, passwordHash);
-        if (usuarioService.add(u)) {
+        if (usuarioController.crear(u)) {
             System.out.println("Usuario creado (id " + u.getId() + ")");
         } else {
             System.out.println("Datos incorrectos, revisa el nombre y el rol");
@@ -274,7 +271,7 @@ public class Menu {
     }
 
     private void listUsers() throws SQLException {
-        List<Usuario> lista = usuarioService.list();
+        List<Usuario> lista = usuarioController.listar();
         if (lista.isEmpty()) {
             System.out.println("Todavia no hay usuarios");
             return;
@@ -289,7 +286,7 @@ public class Menu {
 
     private void findUser() throws SQLException {
         int id = readInt("Id: ");
-        Usuario u = usuarioService.find(id);
+        Usuario u = usuarioController.buscar(id);
         if (u == null) {
             System.out.println("Ese usuario no existe");
         } else {
@@ -299,7 +296,7 @@ public class Menu {
 
     private void updateUser() throws SQLException {
         int id = readInt("Id: ");
-        Usuario u = usuarioService.find(id);
+        Usuario u = usuarioController.buscar(id);
         if (u == null) {
             System.out.println("Ese usuario no existe");
             return;
@@ -310,7 +307,7 @@ public class Menu {
         u.setEmail(entrada.nextLine());
         System.out.print("Nuevo rol: ");
         u.setRole(entrada.nextLine());
-        if (usuarioService.modify(u)) {
+        if (usuarioController.modificar(u)) {
             System.out.println("Usuario actualizado");
         } else {
             System.out.println("No se ha podido guardar");
@@ -319,7 +316,7 @@ public class Menu {
 
     private void deleteUser() throws SQLException {
         int id = readInt("Id: ");
-        if (usuarioService.remove(id)) {
+        if (usuarioController.eliminar(id)) {
             System.out.println("Usuario borrado");
         } else {
             System.out.println("Ese usuario no existe");
@@ -375,7 +372,7 @@ public class Menu {
         System.out.print("Categoria (GRADO_MEDIO/GRADO_SUPERIOR/ESPECIALIZACION/CURSO_CORTO/IDIOMAS): ");
         String categoria = entrada.nextLine();
         Producto p = new Producto(0, nombre, desc, precio, categoria);
-        if (productoService.add(p)) {
+        if (productoController.crear(p)) {
             System.out.println("Curso anadido (id " + p.getId() + ")");
         } else {
             System.out.println("Datos incorrectos");
@@ -383,7 +380,7 @@ public class Menu {
     }
 
     private void listProducts() throws SQLException {
-        List<Producto> lista = productoService.list();
+        List<Producto> lista = productoController.listar();
         if (lista.isEmpty()) {
             System.out.println("Todavia no hay cursos");
             return;
@@ -398,7 +395,7 @@ public class Menu {
 
     private void findProduct() throws SQLException {
         int id = readInt("Id: ");
-        Producto p = productoService.find(id);
+        Producto p = productoController.buscar(id);
         if (p == null) {
             System.out.println("No hay ningun curso con ese id");
         } else {
@@ -408,7 +405,7 @@ public class Menu {
 
     private void updateProduct() throws SQLException {
         int id = readInt("Id: ");
-        Producto p = productoService.find(id);
+        Producto p = productoController.buscar(id);
         if (p == null) {
             System.out.println("No hay ningun curso con ese id");
             return;
@@ -420,7 +417,7 @@ public class Menu {
         p.setPrice(readDouble("Nuevo precio: "));
         System.out.print("Nueva categoria: ");
         p.setCategory(entrada.nextLine());
-        if (productoService.modify(p)) {
+        if (productoController.modificar(p)) {
             System.out.println("Curso actualizado");
         } else {
             System.out.println("No se ha podido guardar");
@@ -429,7 +426,7 @@ public class Menu {
 
     private void deleteProduct() throws SQLException {
         int id = readInt("Id: ");
-        if (productoService.remove(id)) {
+        if (productoController.eliminar(id)) {
             System.out.println("Curso borrado");
         } else {
             System.out.println("No hay ningun curso con ese id");
@@ -488,7 +485,7 @@ public class Menu {
         String estado = entrada.nextLine();
         double total = readDouble("Total: ");
         Venta v = new Venta(0, clienteId, usuarioId, fecha, estado, total);
-        if (ventaService.add(v)) {
+        if (ventaController.crear(v)) {
             System.out.println("Matricula guardada (id " + v.getId() + ")");
         } else {
             System.out.println("Datos incorrectos");
@@ -496,7 +493,7 @@ public class Menu {
     }
 
     private void listSales() throws SQLException {
-        List<Venta> lista = ventaService.list();
+        List<Venta> lista = ventaController.listar();
         if (lista.isEmpty()) {
             System.out.println("Todavia no hay matriculas");
             return;
@@ -511,7 +508,7 @@ public class Menu {
 
     private void findSale() throws SQLException {
         int id = readInt("Id: ");
-        Venta v = ventaService.find(id);
+        Venta v = ventaController.buscar(id);
         if (v == null) {
             System.out.println("No hay ninguna matricula con ese id");
         } else {
@@ -521,7 +518,7 @@ public class Menu {
 
     private void updateSale() throws SQLException {
         int id = readInt("Id: ");
-        Venta v = ventaService.find(id);
+        Venta v = ventaController.buscar(id);
         if (v == null) {
             System.out.println("No hay ninguna matricula con ese id");
             return;
@@ -532,7 +529,7 @@ public class Menu {
         System.out.print("Nuevo estado: ");
         v.setStatus(entrada.nextLine());
         v.setTotal(readDouble("Nuevo total: "));
-        if (ventaService.modify(v)) {
+        if (ventaController.modificar(v)) {
             System.out.println("Matricula actualizada");
         } else {
             System.out.println("No se ha podido guardar");
@@ -541,7 +538,7 @@ public class Menu {
 
     private void deleteSale() throws SQLException {
         int id = readInt("Id: ");
-        if (ventaService.remove(id)) {
+        if (ventaController.eliminar(id)) {
             System.out.println("Matricula borrada");
         } else {
             System.out.println("No hay ninguna matricula con ese id");
@@ -568,7 +565,7 @@ public class Menu {
         }
 
         try {
-            Venta venta = matriculaService.enroll(clienteId, usuarioId, lineas);
+            Venta venta = ventaController.matricular(clienteId, usuarioId, lineas);
             System.out.println("Matricula creada con exito:");
             System.out.println("  " + venta);
             System.out.println("  Total: " + venta.getTotal() + " EUR");
@@ -630,7 +627,7 @@ public class Menu {
         int cantidad = readInt("Cantidad: ");
         double precio = readDouble("Precio unitario: ");
         DetalleVenta d = new DetalleVenta(0, ventaId, productoId, cantidad, precio);
-        if (detalleService.add(d)) {
+        if (detalleController.crear(d)) {
             System.out.println("Linea guardada (id " + d.getId() + ")");
         } else {
             System.out.println("Datos incorrectos");
@@ -638,7 +635,7 @@ public class Menu {
     }
 
     private void listDetails() throws SQLException {
-        List<DetalleVenta> lista = detalleService.list();
+        List<DetalleVenta> lista = detalleController.listar();
         if (lista.isEmpty()) {
             System.out.println("Todavia no hay lineas");
             return;
@@ -653,7 +650,7 @@ public class Menu {
 
     private void listDetailsBySale() throws SQLException {
         int ventaId = readInt("Id de la venta: ");
-        List<DetalleVenta> lista = detalleService.listBySale(ventaId);
+        List<DetalleVenta> lista = detalleController.listarPorVenta(ventaId);
         if (lista.isEmpty()) {
             System.out.println("Sin lineas para esa venta");
             return;
@@ -668,7 +665,7 @@ public class Menu {
 
     private void findDetail() throws SQLException {
         int id = readInt("Id: ");
-        DetalleVenta d = detalleService.find(id);
+        DetalleVenta d = detalleController.buscar(id);
         if (d == null) {
             System.out.println("No hay ninguna linea con ese id");
         } else {
@@ -678,7 +675,7 @@ public class Menu {
 
     private void updateDetail() throws SQLException {
         int id = readInt("Id: ");
-        DetalleVenta d = detalleService.find(id);
+        DetalleVenta d = detalleController.buscar(id);
         if (d == null) {
             System.out.println("No hay ninguna linea con ese id");
             return;
@@ -687,7 +684,7 @@ public class Menu {
         d.setProductId(readInt("Nuevo id producto: "));
         d.setQuantity(readInt("Nueva cantidad: "));
         d.setUnitPrice(readDouble("Nuevo precio unitario: "));
-        if (detalleService.modify(d)) {
+        if (detalleController.modificar(d)) {
             System.out.println("Linea actualizada");
         } else {
             System.out.println("No se ha podido guardar");
@@ -696,7 +693,7 @@ public class Menu {
 
     private void deleteDetail() throws SQLException {
         int id = readInt("Id: ");
-        if (detalleService.remove(id)) {
+        if (detalleController.eliminar(id)) {
             System.out.println("Linea borrada");
         } else {
             System.out.println("No hay ninguna linea con ese id");
@@ -752,16 +749,16 @@ public class Menu {
     }
 
     private void revenueReport() throws SQLException {
-        double total = ventaService.totalRevenue();
+        double total = ventaController.facturacionTotal();
         System.out.println("Facturacion total (pagadas + confirmadas): " + total + " EUR");
     }
 
     private void statusReport(String estado) throws SQLException {
         List<Venta> lista;
         if (estado.equals("PENDIENTE")) {
-            lista = ventaService.listPendingPayment();
+            lista = ventaController.listarPendientes();
         } else {
-            lista = ventaService.listPaid();
+            lista = ventaController.listarPagadas();
         }
         if (lista.isEmpty()) {
             System.out.println("No hay matriculas en estado " + estado);
@@ -773,7 +770,7 @@ public class Menu {
     }
 
     private void cyclesReport() throws SQLException {
-        List<Producto> ciclos = productoService.listCycles();
+        List<Producto> ciclos = productoController.listarCiclos();
         if (ciclos.isEmpty()) {
             System.out.println("No hay ciclos");
             return;
@@ -790,26 +787,26 @@ public class Menu {
     }
 
     private void salespeopleReport() throws SQLException {
-        List<Usuario> comerciales = usuarioService.listSalespeople();
+        List<Usuario> comerciales = usuarioController.listarComerciales();
         if (comerciales.isEmpty()) {
             System.out.println("No hay comerciales");
             return;
         }
         for (Usuario u : comerciales) {
-            int n = ventaService.countEnrollmentsManagedBy(u.getId());
+            int n = ventaController.contarGestionadasPor(u.getId());
             System.out.println("  " + u.getName() + " (id " + u.getId() + ") -> " + n + " matricula(s)");
         }
     }
 
     private void studentEnrollmentsReport() throws SQLException {
         int clienteId = readInt("Id del alumno: ");
-        Cliente c = clienteService.find(clienteId);
+        Cliente c = clienteController.buscar(clienteId);
         if (c == null) {
             System.out.println("Alumno no encontrado");
             return;
         }
         System.out.println("Alumno: " + c.getName() + " (" + c.getEmail() + ")");
-        List<Venta> matriculas = ventaService.enrollmentsOf(clienteId);
+        List<Venta> matriculas = ventaController.matriculasDe(clienteId);
         if (matriculas.isEmpty()) {
             System.out.println("Este alumno no tiene matriculas");
             return;
@@ -821,7 +818,7 @@ public class Menu {
 
     private void markAsPaidAction() throws SQLException {
         int id = readInt("Id de la matricula a marcar como pagada: ");
-        if (ventaService.markAsPaid(id)) {
+        if (ventaController.marcarComoPagada(id)) {
             System.out.println("Matricula " + id + " marcada como PAGADA");
         } else {
             System.out.println("No se ha podido actualizar (id no existe)");
@@ -837,10 +834,10 @@ public class Menu {
         int opcion = readInt("Opcion: ");
         try {
             if (opcion == 1) {
-                ExportadorCSV.exportarClientes(clienteService.list(), "clientes.csv");
+                ExportadorCSV.exportarClientes(clienteController.listar(), "clientes.csv");
                 System.out.println("Exportado a clientes.csv");
             } else if (opcion == 2) {
-                ExportadorCSV.exportarVentas(ventaService.list(), "ventas.csv");
+                ExportadorCSV.exportarVentas(ventaController.listar(), "ventas.csv");
                 System.out.println("Exportado a ventas.csv");
             }
         } catch (SQLException e) {

@@ -1,6 +1,6 @@
 package com.omar;
 
-import com.omar.controller.Menu;
+import com.omar.interfaz.Menu;
 
 public class Main {
 
