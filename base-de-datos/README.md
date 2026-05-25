@@ -14,11 +14,12 @@ MySQL (la que usa la aplicacion Java) como en Oracle (con PL/SQL).
 - `oracle_2_cursores.sql` : 25 consultas con cursores (5 por cada tabla).
 
 - `oracle_3_procedimientos_funciones.sql` : 10 procedimientos y 10 funciones
-  (2 y 2 por cada tabla) y dos vistas.
+  (2 y 2 por cada tabla), dos vistas y, al final, las comprobaciones que llaman a cada procedimiento y funcion para demostrar que funcionan.
 
 - `oracle_4_dml_plsql.sql` : manipulacion de datos (DML) a traves de bloques
   PL/SQL. Por cada tabla crea, modifica y elimina 5 registros usando bucles,
   variables, control y manejo de excepciones con ROLLBACK.
+
 
 ## Modelo
 

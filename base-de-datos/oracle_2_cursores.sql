@@ -1,9 +1,6 @@
--- CRM Instituto Xtart - Oracle PL/SQL
--- 25 consultas con cursores (5 por cada tabla)
-
 SET SERVEROUTPUT ON;
 
--- ===== CLIENTES =====
+-- CLIENTES
 
 BEGIN
     FOR c IN (SELECT id, nombre, email FROM clientes ORDER BY id) LOOP
@@ -51,7 +48,7 @@ BEGIN
 END;
 /
 
--- ===== USUARIOS =====
+-- USUARIOS
 
 BEGIN
     FOR u IN (SELECT id, nombre, rol FROM usuarios ORDER BY id) LOOP
@@ -98,7 +95,7 @@ BEGIN
 END;
 /
 
--- ===== PRODUCTOS =====
+-- PRODUCTOS
 
 BEGIN
     FOR p IN (SELECT id, nombre, precio FROM productos ORDER BY id) LOOP
@@ -146,7 +143,7 @@ BEGIN
 END;
 /
 
--- ===== VENTAS =====
+-- VENTAS
 
 BEGIN
     FOR v IN (SELECT id, fecha, estado, total FROM ventas ORDER BY id) LOOP
@@ -194,7 +191,7 @@ BEGIN
 END;
 /
 
--- ===== DETALLE_VENTA =====
+-- DETALLE_VENTA
 
 BEGIN
     FOR d IN (SELECT id, venta_id, producto_id, cantidad FROM detalle_venta ORDER BY id) LOOP

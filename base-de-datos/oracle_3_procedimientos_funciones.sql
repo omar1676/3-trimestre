@@ -1,9 +1,4 @@
--- CRM Instituto Xtart - Oracle PL/SQL
--- 10 procedimientos + 10 funciones (2+2 por tabla) y vistas
-
--- ============================================================
 -- CLIENTES
--- ============================================================
 
 CREATE OR REPLACE PROCEDURE insertar_cliente(
     p_nombre IN VARCHAR2,
@@ -13,12 +8,10 @@ CREATE OR REPLACE PROCEDURE insertar_cliente(
 ) IS
     v_existe NUMBER;
 BEGIN
-    -- validacion: nombre y email no pueden venir vacios
     IF p_nombre IS NULL OR p_email IS NULL THEN
         DBMS_OUTPUT.PUT_LINE('nombre y email son obligatorios');
         RETURN;
     END IF;
-    -- control: no permitir email duplicado
     SELECT COUNT(*) INTO v_existe FROM clientes WHERE email = p_email;
     IF v_existe > 0 THEN
         DBMS_OUTPUT.PUT_LINE('ya existe un cliente con ese email');
@@ -67,9 +60,7 @@ EXCEPTION
 END;
 /
 
--- ============================================================
 -- USUARIOS
--- ============================================================
 
 CREATE OR REPLACE PROCEDURE insertar_usuario(
     p_nombre IN VARCHAR2,
@@ -129,9 +120,7 @@ EXCEPTION
 END;
 /
 
--- ============================================================
 -- PRODUCTOS
--- ============================================================
 
 CREATE OR REPLACE PROCEDURE insertar_producto(
     p_nombre IN VARCHAR2,
@@ -198,9 +187,7 @@ BEGIN
 END;
 /
 
--- ============================================================
 -- VENTAS
--- ============================================================
 
 CREATE OR REPLACE PROCEDURE cambiar_estado_venta(p_id IN NUMBER, p_estado IN VARCHAR2) IS
 BEGIN
@@ -238,9 +225,7 @@ BEGIN
 END;
 /
 
--- ============================================================
 -- DETALLE_VENTA
--- ============================================================
 
 CREATE OR REPLACE PROCEDURE insertar_detalle(
     p_venta_id IN NUMBER,
@@ -251,7 +236,6 @@ CREATE OR REPLACE PROCEDURE insertar_detalle(
     v_existe_venta NUMBER;
     v_existe_prod NUMBER;
 BEGIN
-    -- control: la venta y el producto deben existir
     SELECT COUNT(*) INTO v_existe_venta FROM ventas WHERE id = p_venta_id;
     SELECT COUNT(*) INTO v_existe_prod FROM productos WHERE id = p_producto_id;
     IF v_existe_venta = 0 THEN
@@ -307,9 +291,7 @@ BEGIN
 END;
 /
 
--- ============================================================
 -- VISTAS
--- ============================================================
 
 CREATE OR REPLACE VIEW v_matriculas AS
 SELECT v.id, c.nombre AS alumno, u.nombre AS comercial, v.fecha, v.estado, v.total
@@ -321,3 +303,109 @@ CREATE OR REPLACE VIEW v_facturacion AS
 SELECT estado, COUNT(*) AS num_matriculas, SUM(total) AS importe
 FROM ventas
 GROUP BY estado;
+
+-- COMPROBACIONES
+
+SET SERVEROUTPUT ON;
+
+-- CLIENTES
+BEGIN
+    insertar_cliente('Cliente Comprobacion', 'comprobacion.cliente@xtart.com', '600999888', 'Calle Prueba 1');
+END;
+/
+BEGIN
+    mostrar_cliente(1);
+END;
+/
+DECLARE
+    v_num NUMBER;
+    v_txt VARCHAR2(120);
+BEGIN
+    v_num := contar_clientes;
+    DBMS_OUTPUT.PUT_LINE('contar_clientes -> ' || v_num);
+    v_txt := nombre_cliente(1);
+    DBMS_OUTPUT.PUT_LINE('nombre_cliente(1) -> ' || v_txt);
+END;
+/
+
+-- USUARIOS
+BEGIN
+    insertar_usuario('Usuario Comprobacion', 'comprobacion.usuario@xtart.com', 'COMERCIAL');
+END;
+/
+BEGIN
+    cambiar_rol(1, 'ADMIN');
+END;
+/
+DECLARE
+    v_num NUMBER;
+    v_txt VARCHAR2(120);
+BEGIN
+    v_num := contar_usuarios;
+    DBMS_OUTPUT.PUT_LINE('contar_usuarios -> ' || v_num);
+    v_txt := rol_usuario(1);
+    DBMS_OUTPUT.PUT_LINE('rol_usuario(1) -> ' || v_txt);
+END;
+/
+
+-- PRODUCTOS
+BEGIN
+    insertar_producto('Curso Comprobacion', 'curso de prueba', 199.99, 'CURSO_CORTO');
+END;
+/
+BEGIN
+    subir_precio(1, 10);
+END;
+/
+DECLARE
+    v_num NUMBER;
+    v_txt VARCHAR2(120);
+BEGIN
+    v_num := precio_producto(1);
+    DBMS_OUTPUT.PUT_LINE('precio_producto(1) -> ' || v_num);
+    v_txt := clasificar_precio(900);
+    DBMS_OUTPUT.PUT_LINE('clasificar_precio(900) -> ' || v_txt);
+END;
+/
+
+-- VENTAS
+BEGIN
+    cambiar_estado_venta(1, 'PAGADA');
+END;
+/
+BEGIN
+    listar_ventas_cliente(1);
+END;
+/
+DECLARE
+    v_num NUMBER;
+BEGIN
+    v_num := facturacion_total;
+    DBMS_OUTPUT.PUT_LINE('facturacion_total -> ' || v_num);
+    v_num := contar_ventas_estado('PAGADA');
+    DBMS_OUTPUT.PUT_LINE('contar_ventas_estado(PAGADA) -> ' || v_num);
+END;
+/
+
+-- DETALLE_VENTA
+BEGIN
+    insertar_detalle(1, 1, 1, 50);
+END;
+/
+BEGIN
+    mostrar_detalles_venta(1);
+END;
+/
+DECLARE
+    v_num NUMBER;
+BEGIN
+    v_num := total_linea(1);
+    DBMS_OUTPUT.PUT_LINE('total_linea(1) -> ' || v_num);
+    v_num := contar_lineas_venta(1);
+    DBMS_OUTPUT.PUT_LINE('contar_lineas_venta(1) -> ' || v_num);
+END;
+/
+
+-- VISTAS
+SELECT * FROM v_matriculas WHERE ROWNUM <= 5;
+SELECT * FROM v_facturacion;

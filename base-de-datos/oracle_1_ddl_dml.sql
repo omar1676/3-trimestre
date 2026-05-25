@@ -1,6 +1,3 @@
--- Base de datos CRM Instituto Xtart - Oracle PL/SQL
--- Modelo de 5 tablas con PL/SQL: cursores, procedimientos, funciones y vistas
-
 CREATE TABLE clientes (
     id NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     nombre VARCHAR2(75) NOT NULL,
@@ -45,10 +42,6 @@ CREATE TABLE detalle_venta (
     CONSTRAINT fk_detalle_venta FOREIGN KEY (venta_id) REFERENCES ventas(id),
     CONSTRAINT fk_detalle_producto FOREIGN KEY (producto_id) REFERENCES productos(id)
 );
-
--- ============================================================
--- DML - insercion de datos
--- ============================================================
 
 INSERT INTO clientes (nombre, email, telefono, direccion) VALUES ('Omar Yamani', 'omar.yamani@estudiante.xtart.com', '666111222', 'Calle Mayor 1, Madrid');
 INSERT INTO clientes (nombre, email, telefono, direccion) VALUES ('Daniel Vargas', 'daniel.vargas@estudiante.xtart.com', '666333444', 'Av. Libertad 23, Sevilla');

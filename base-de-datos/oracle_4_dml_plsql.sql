@@ -1,12 +1,5 @@
--- CRM Instituto Xtart - Oracle PL/SQL
--- DML a traves de PL/SQL: creacion, modificacion y eliminacion de registros
--- Cada bloque usa PL/SQL (variables, bucles, control y excepciones), no INSERT plano
-
 SET SERVEROUTPUT ON;
 
--- ============================================================
--- CLIENTES - crear, modificar y eliminar
--- ============================================================
 DECLARE
     TYPE t_nombre IS TABLE OF VARCHAR2(75);
     TYPE t_email  IS TABLE OF VARCHAR2(120);
@@ -15,14 +8,12 @@ DECLARE
     v_mod NUMBER;
     v_del NUMBER;
 BEGIN
-    -- CREAR 5 registros mediante un bucle
     FOR i IN 1 .. v_nombres.COUNT LOOP
         INSERT INTO clientes (nombre, email, telefono, direccion)
         VALUES (v_nombres(i), v_emails(i), '600000' || i, 'Direccion de prueba ' || i);
     END LOOP;
     DBMS_OUTPUT.PUT_LINE('clientes creados: ' || v_nombres.COUNT);
 
-    -- MODIFICAR 5 registros (los recien creados, por su email)
     v_mod := 0;
     FOR i IN 1 .. v_emails.COUNT LOOP
         UPDATE clientes SET telefono = '611111' || i WHERE email = v_emails(i);
@@ -30,7 +21,6 @@ BEGIN
     END LOOP;
     DBMS_OUTPUT.PUT_LINE('clientes modificados: ' || v_mod);
 
-    -- ELIMINAR 5 registros (los de prueba, por su email)
     v_del := 0;
     FOR i IN 1 .. v_emails.COUNT LOOP
         DELETE FROM clientes WHERE email = v_emails(i);
@@ -46,9 +36,6 @@ EXCEPTION
 END;
 /
 
--- ============================================================
--- USUARIOS - crear, modificar y eliminar
--- ============================================================
 DECLARE
     TYPE t_txt IS TABLE OF VARCHAR2(120);
     v_nombres t_txt := t_txt('Test Uno','Test Dos','Test Tres','Test Cuatro','Test Cinco');
@@ -84,9 +71,6 @@ EXCEPTION
 END;
 /
 
--- ============================================================
--- PRODUCTOS - crear, modificar y eliminar
--- ============================================================
 DECLARE
     TYPE t_txt IS TABLE OF VARCHAR2(50);
     v_nombres t_txt := t_txt('Curso Test A','Curso Test B','Curso Test C','Curso Test D','Curso Test E');
@@ -98,7 +82,6 @@ BEGIN
     END LOOP;
     DBMS_OUTPUT.PUT_LINE('productos creados: ' || v_nombres.COUNT);
 
-    -- modificar: subir un 10% el precio de los cursos de prueba
     UPDATE productos SET precio = precio * 1.10 WHERE nombre LIKE 'Curso Test%';
     DBMS_OUTPUT.PUT_LINE('productos modificados: ' || SQL%ROWCOUNT);
 
@@ -113,10 +96,6 @@ EXCEPTION
 END;
 /
 
--- ============================================================
--- VENTAS - crear, modificar y eliminar
--- (usa un cliente y usuario existentes; se crean, modifican y borran 5 ventas de prueba)
--- ============================================================
 DECLARE
     v_cliente NUMBER;
     v_usuario NUMBER;
@@ -126,7 +105,6 @@ BEGIN
     SELECT MIN(id) INTO v_cliente FROM clientes;
     SELECT MIN(id) INTO v_usuario FROM usuarios;
 
-    -- CREAR 5 ventas de prueba guardando sus id
     FOR i IN 1 .. 5 LOOP
         INSERT INTO ventas (cliente_id, usuario_id, fecha, estado, total)
         VALUES (v_cliente, v_usuario, SYSDATE, 'PENDIENTE', 100 * i)
@@ -136,13 +114,11 @@ BEGIN
     END LOOP;
     DBMS_OUTPUT.PUT_LINE('ventas creadas: ' || v_ids.COUNT);
 
-    -- MODIFICAR esas 5 ventas
     FOR i IN 1 .. v_ids.COUNT LOOP
         UPDATE ventas SET estado = 'CONFIRMADA' WHERE id = v_ids(i);
     END LOOP;
     DBMS_OUTPUT.PUT_LINE('ventas modificadas: ' || v_ids.COUNT);
 
-    -- ELIMINAR esas 5 ventas
     FOR i IN 1 .. v_ids.COUNT LOOP
         DELETE FROM ventas WHERE id = v_ids(i);
     END LOOP;
@@ -156,9 +132,6 @@ EXCEPTION
 END;
 /
 
--- ============================================================
--- DETALLE_VENTA - crear, modificar y eliminar
--- ============================================================
 DECLARE
     v_venta NUMBER;
     v_producto NUMBER;
